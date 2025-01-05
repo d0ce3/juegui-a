@@ -1,0 +1,431 @@
+Bienvenido a la documentación de MSX
+Acerca de
+Los addons son partes de código creados por la comunidad que cumplen una función específica en MSX, ya sea automatizar un proceso o ayudar a realizar alguna acción.
+
+Esta sección de la documentación está dedicada al sistema de addons integrado en MSX.
+
+En el panel lateral izquierdo puede encontrar toda la información necesaria en orden de complejidad.
+
+Los addons se recargan cada vez que apretas enter en el menú principal
+
+Modo debug
+Para iniciar en el desarrollo de addons, se recomienda activar el modo debug, disponible desde Gestionar > Activar modo debug. Al activarlo, se habilitarán comandos de desarrollador desde el menú principal.
+
+refresh
+Recarga tus addons / scripts de Python sin necesidad de reiniciar MSX.
+
+ex
+Inicia un prompt para ejecutar alguna función de Python
+
+d_ar
+Desactiva la auto-recarga de addons y script al apretar enter. Útil para usar refresh
+
+e_ar
+Activa la auto-recarga de addons y script al apretar enter.
+
+Secciones
+<> = requerido, [] = opcional, ; = anotación
+
+¿Qué son?
+Los addons consisten en secciones, bloques de código con un propósito específico.
+Ejemplo:
+
+
+:main ; definición de la sección llamada "main"
+a_name Mi primer addon
+Vemos entonces que la sintaxis general para declarar una sección sería la siguiente
+
+
+:nombre_de_la_sección
+; <contenido>
+Sección principal
+Cada addon debe tener una sección principal, el encabezado que contiene la información acerca de éste. Esta sección debe ir al principio de cada addon y su nombre debe ser main
+
+
+:main
+Atributos de la sección principal
+Cuando hayas declarado tu sección principal, debes especificar obligatoriamente el nombre y la versión del addon con a_name <nombre> y a_version <version>. Ejemplo:
+
+
+:main
+a_name Mi primer addon ; Establece el nombre del addon a "Mi primer addon"
+a_version 1,0 ; Establece la versión del addon a "1,0"
+Nota: El formato de la versión será el que usted quiera. Es meramente visual pero puede ayudar a los usuarios a guiarse a través las versiones
+Opcionalmente, puede establecer la descripción del addon con a_description <descripcion>
+Botones
+Los botones son secciones que pueden ejecutar uno o más comandos con la interacción del usuario. Su sintaxis general es la siguiente
+
+
+:button <nombre_interno_del_botón>
+text <nombre visible del botón>
+; [comandos]
+Observe que el botón tiene 2 nombres, uno interno y otro visible para el usuario. Con un ejemplo:
+
+
+:button crear_respaldo
+text Crear respaldo de tu mundo
+Lo que el usuario verá, será algo parecido a esto: [1] Crear respaldo de tu mundo
+
+Sección automática
+Esta sección se ejecutará automáticamente al cargarse el addon (Todos los addons se cargan al iniciarse MSX en orden alfabético), es decir, incluso antes de que aparezca el menú principal, útil si queremos que algún(os) comando(s) se ejecute para toda la sesión.
+La sintaxis general de esta sección es
+
+
+:auto
+; <comandos>
+Importante: Debe ir después de la sección main, dando como resultado una estructura así
+
+:main
+...
+
+:auto
+...
+
+; [resto del código]
+Sección inerte
+Las secciones inertes/inactivas son secciones que contienen código reutilizable, similar a funciones en otros lenguajes de programación. Su sintaxis general es la siguiente:
+
+
+:section <nombre_interno_de_la_sección>
+<comandos>
+Nota: Las secciones inertes deben ir abajo de las secciones main y auto
+
+Comandos
+<> = requerido, [] = opcional, ; = anotación
+
+Comandos de texto
+say
+Este comando mostrará algo en la pantalla de manera decorada y usando el esquema de colores de MSX. Sintaxis:
+
+
+say <texto a decir>
+Ejemplo de uso:
+
+:button decir_hola
+text Saludarme
+say Hola, cómo estás?
+Producirá una salida similar a esta: [+] Hola. Cómo estás?
+nsay
+Este comando mostrará algo en la pantalla sin decorador y usando el esquema de colores de MSX. Sintaxis:
+
+
+nsay <texto a decir>
+Ejemplo de uso:
+
+:button decir_hola
+text Saludarme
+nsay Hola, cómo estás?
+Producirá una salida similar a esta: Hola. Cómo estás?
+csay
+Este comando mostrará algo en la pantalla sin decorador y usando el esquema del sistema. Sintaxis:
+
+
+csay <texto a decir>
+Ejemplo de uso:
+
+:button decir_hola
+text Saludarme
+csay Hola, cómo estás?
+Producirá una salida similar a esta: Hola. Cómo estás?
+Comandos de sesión
+sleep
+Este comando hace que el addon espere x cantidad de segundos antes de continuar con el resto de los comandos. Sintaxis:
+
+
+sleep <segundos>
+Ejemplo de uso:
+
+:button saludar_y_despedirse
+text Saludarme
+say Hola! Cómo estás?
+sleep 3
+say Hasta luego! ; este texto se mostrará 3 segundos después
+pause
+Este comando hace que el usuario tenga que apretar la tecla enter para continuar con el resto de los comandos. Sintaxis:
+
+
+pause
+Ejemplo de uso:
+
+:button saludar_y_despedirse
+text Saludarme
+say Hola! Cómo estás?
+pause
+say Hasta luego! ; este texto se mostrará después de apretar enter
+cls
+Este comando hace que la pantalla quede en blanco. Sintaxis:
+
+
+cls
+Ejemplo de uso:
+
+:button saludar_y_despedirse
+text Saludarme
+say Hola! Cómo estás?
+sleep 3
+cls
+say Hasta luego! ; este texto se mostrará después de 3 segundos, además la pantalla se limpiará.
+use
+Este comando hace que una sección se ejecute. Sintaxis:
+
+
+use <nombre_de_la_sección>
+Ejemplo de uso:
+
+:section decir_saludo
+say Hola. Cómo estás?
+
+:button saludar_usuario
+text Saludarme
+use decir_saludo
+exit!
+Poner este comando en la sección auto hará que el addon deje de cargarse. Ejemplo de uso:
+
+
+:auto
+say Dejando de cargar el addon.
+exit!
+Comandos de servidor
+config
+Este comando cambia alguna clave de configuracion.json temporalmente. ( Solo a nivel interno, no hace ningún cambio en los archivos, ni del servidor ni en el archivo de configuración ) Sintaxis:
+
+
+config <clave> <valor>
+Ejemplo de uso:
+
+:button cambiar_servidor
+text Cambiar tipo y versión de mi servidor
+config server_type fabric
+config version 1.20.1
+say Servidor establecido en Fabric 1.20.1
+config_save
+Este comando guarda la configuración del nivel interno en el archivo configuracion.json Sintaxis:
+
+
+config_save
+Ejemplo de uso:
+
+:button eliminar_server
+text Pasarme a Fabric
+config server_type fabric ; cambia la configuración a nivel interno (temporal)
+config_save ; cambia la configuración a nivel externo (permanente)
+say Servidor eliminado
+remove_server
+Este comando elimina el servidor. Sintaxis:
+
+
+remove_server
+Ejemplo de uso:
+
+:button eliminar_server
+text Eliminar mi servidor
+remove_server
+say Servidor eliminado
+download_version
+Este comando instala un servidor con sus parámetros. El primer parámetro indica si es una versión personalizada (Establecida por el desarrollador del addon) o si por el contrario, es una versión incluida en MSX. Sintaxis:
+
+
+download_version <custom (y/n)> <tipo de servidor> <versión del servidor>
+Ejemplo de uso:
+
+:button instalar_forge_121
+text Instalar Forge 1.21
+download_version n forge 1.21
+say Servidor instalado
+forge_version
+Este comando reinstala el servidor Forge actual con otra versión de este. Sintaxis:
+
+
+forge_version <version nueva del loader>
+Ejemplo de uso:
+
+:button cambiar_forge
+text Cambiar a Forge 1.20.1 - 47.6.0
+forge_version 47.6.0
+say Versión de Forge cambiada.
+java_reinstall
+Este comando reinstala una versión de Java. Sintaxis:
+
+
+java_reinstall <version>
+Ejemplo de uso:
+
+:button reinstalar_java
+text Reinstalar Java 8
+java_reinstall 8
+say Java 8 reinstalado
+Comandos de archivos
+download_file
+Este comando descarga un archivo de internet. Sintaxis:
+
+
+download_file <url> <nombre>
+Ejemplo de uso:
+
+:button descargar_modpack
+text Descargar RLCraft v1.0
+download_file https://modpack.com/modpack.zip rlcraft.zip
+say Modpack descargado
+unzip
+Este comando descomprime x archivo .zip Sintaxis:
+
+
+unzip <nombre del archivo .zip>
+Ejemplo de uso:
+
+:button descomprimir
+text Descomprimir modpack
+unzip rlcraft.zip
+say Modpack listo
+nav
+Este comando navega entre directorios. Sintaxis:
+
+
+nav <ruta>
+Ejemplo de uso:
+
+:button entrar_carpeta_servidor
+text Entrar a la carpeta del servidor
+nav servidor_minecraft
+say En la carpeta del servidor!
+Comandos de sistema
+exec
+Este comando ejecuta comando(s) del sistema operativo (Bash). Sintaxis:
+
+
+exec <comando(s)>
+Ejemplo de uso:
+
+:button ejecutar_limpieza
+text Limpiar la pantalla
+exec clear && reset
+say Limpieza realizada!
+c_exec
+Este comando ejecuta comando(s) de Python. Sintaxis:
+
+
+c_exec <comando(s)>
+Ejemplo de uso:
+
+:button decir_hola
+text Saludarme
+c_exec print("Hola! Cómo estás?")
+
+Variables
+<> = requerido, [] = opcional, ; = anotación
+Las variables pueden ser usadas para valores que cambian. Pueden ponerse en cualquier lugar con la condición de estar dentro de una sección.
+Para utilizar una variable debe utilizarse la sintaxis %nombre_de_la_variable%
+
+var
+Este comando sirve para establecer una variable. Sintaxis:
+
+
+var <nombre_de_la_variable> <contenido de la variable> 
+Ejemplo de uso:
+
+:main
+...
+var org MSX
+
+:button decir_creador
+text Decir el nombre del creador
+var creador Elyx
+say El creador de este addon es %creador% de %org%
+Esto producirá una salida similar a esta: [+] El creador de este addon es Elyx de MSX
+input
+Este comando recibe la entrada del usuario y la almacena en x variable. Sintaxis:
+
+
+input <variable> <pregunta>
+Ejemplo de uso:
+
+:button introducir_edad
+text Dar mi edad
+input edad Cuántos años tienes? > 
+say El usuario de este addon tiene %edad% años
+if
+Este comando evalua una condición lógica y según el resultado usa una u otra sección. Sintaxis:
+
+
+if <condición> <verdadero> <falso>
+En caso de que no se desee usar ninguna sección, se puede reemplazar con none.
+Ejemplo de uso #1:
+
+:section verdad
+say 5 es mayor a 8
+
+:section falso
+say 5 NO es mayor a 8
+
+:button comparar
+text Es 5 mayor a 8?
+if 5>8 verdad falso 
+Ejemplo de uso #2:
+
+:section eliminar
+remove_server
+say Servidor eliminado!
+
+:button preguntar
+text Eliminar mi servidor
+input respuesta Está seguro de querer eliminar su servidor? (s/n)> 
+if "%respuesta%".lower()=="s" eliminar none 
+Desglosemos este ejemplo. Primero, observe que se hace una sección que elimina el servidor, llamada eliminar. Luego se crea un botón, que con un input pregunta si de verdad quiere eliminar el servidor (s/n), almacena la respuesta en la variable llamada respuesta.
+Con el if se evalúa si la respuesta convertida en texto (es decir, usando las comillas) y en minúsculas (usando la función .lower() de Python) equivale a "s". Si es así, usa la sección eliminar y si no, no hace nada, indicado por el none
+
+Versiones
+<> = requerido, [] = opcional, ; = anotación
+Tipos de servidor personalizados pueden ser añadidos, incluyendo sus respectivas versiones. Importante: Los comandos a continuación deben ir en la sección main
+
+a_add_type
+Añade un tipo de servidor personalizado. Sintaxis:
+
+
+a_add_type <nombre>
+Ejemplo de uso:
+
+:main
+...
+a_add_type velocity
+a_add_version
+Añade una versión para un tipo de servidor personalizado. Sintaxis:
+
+
+a_add_version <tipo> <nombre> <url> <versión_de_java>
+Ejemplo de uso:
+
+:main
+...
+a_add_type velocity
+a_add_version velocity 1.20.1 https://velocity.com/server.jar 21
+
+:button instalar_velocity
+text Instalar Velocity 1.20.1
+download_version y velocity 1.20.1
+say Velocity instalado!
+Observe que el parámetro y es usado en download_version para indicar que es una versión personalizada agregada por el creador del addon.
+
+Compatibilidad con Python
+<> = requerido, [] = opcional, ; = anotación
+El sistema de addons permite ejecutar archivos Python independientes.
+
+Modo de uso
+En un archivo de extensión .py, deben ir sus funciones Python, para el ejemplo vamos a crear este archivo llamado funciones.py
+
+
+import os
+
+def hello_world():
+    print("Hola mundo!")
+
+def decir_so():
+    print(f"Este sistema operativo es: {os.name}") 
+Ahora, en nuestro archivo .addon, podremos utilizar estas funciones. Basta con tener el archivo .py en nuestra carpeta de addons.
+
+:button cual_es_el_os
+text Cuál es mi sistema operativo?
+c_exec decir_so()
+
+:button saludar
+text Saludar
+c_exec hello_world()
